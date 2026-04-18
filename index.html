@@ -1114,8 +1114,7 @@ const AUTH = (() => {
     _currentUser = { id: user.id, username: user.username, fullname: user.fullname, role: user.role };
     saveSession(_currentUser);
     _applySession();
-    // Init app
-    initApp();
+    initApp(); // initApp llama loadState que jala del Gist
   }
 
   function logout() {
@@ -1377,34 +1376,34 @@ function saveState() {
   const data = _buildStateSnapshot();
   // 1. Save locally always (instant)
   try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) { console.warn('saveState error', e); }
-  // 2. Push to Gist in background (debounced 10s)
-  _scheduleGistPush(data);
+  // 2. Push to Gist immediately in background
+  _pushDataToGist(data);
 }
 
 async function loadState() {
   const key = _userDataKey();
   if (!key) return;
 
-  // 1. Load from localStorage first (instant, so UI loads fast)
+  // 1. Load from localStorage first (instant)
   try {
     const raw = localStorage.getItem(key);
     if (raw) _applyStateSnapshot(JSON.parse(raw));
   } catch(e) { console.warn('loadState local error', e); }
 
-  // 2. Pull from Gist (may have newer data from another device)
+  // 2. Pull from Gist if configured
+  const gistId = localStorage.getItem('kpi_gist_id');
+  const gistToken = localStorage.getItem('kpi_gist_token');
+  if (!gistId || !gistToken) return;
+
+  showToast('⏳ Sincronizando datos desde la nube...');
   const cloudData = await _pullDataFromGist();
   if (cloudData) {
-    // Use cloud if it has more tasks or more recent data
-    const localTasks = STATE.tasks.length;
-    const cloudTasks = (cloudData.tasks || []).length;
-    // Merge strategy: take whichever has more total tasks; in ties prefer cloud
-    if (cloudTasks >= localTasks) {
-      _applyStateSnapshot(cloudData);
-      // Update localStorage with cloud data
-      try { localStorage.setItem(key, JSON.stringify(cloudData)); } catch {}
-      // Re-render if app already visible
-      if (typeof renderCurrentPage === 'function') renderCurrentPage();
-    }
+    _applyStateSnapshot(cloudData);
+    try { localStorage.setItem(key, JSON.stringify(cloudData)); } catch {}
+    showToast('✓ Datos sincronizados');
+    if (typeof renderCurrentPage === 'function') renderCurrentPage();
+  } else {
+    showToast('⚠ Sin datos en la nube aún — usando datos locales');
   }
 }
 

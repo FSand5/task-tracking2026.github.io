@@ -673,6 +673,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:#F5F3E
     <div class="auth-field"><label>Usuario</label><input type="text" id="auth-username" placeholder="Ej: admin" autocomplete="username"></div>
     <div class="auth-field"><label>Contraseña</label><input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="auth-btn" onclick="AUTH.login()"><i class="bi bi-box-arrow-in-right me-1"></i> Entrar</button>
+
+    <!-- Sync config panel -->
+    <div id="auth-sync-wrap" style="margin-top:16px;border-top:var(--border);padding-top:14px;">
+      <button onclick="document.getElementById('auth-sync-body').style.display=document.getElementById('auth-sync-body').style.display==='none'?'':'none'" style="background:none;border:none;padding:0;font-size:12px;color:var(--blue);cursor:pointer;font-family:inherit;"><i class="bi bi-cloud-arrow-up me-1"></i> <span id="auth-sync-label">¿Primer acceso en este navegador? Conectar Gist</span></button>
+      <div id="auth-sync-body" style="margin-top:10px;">
+        <p style="font-size:11px;color:var(--gray);margin-bottom:8px;">Si creaste usuarios en otro navegador, conecta tu GitHub Gist para sincronizarlos.</p>
+        <div style="margin-bottom:7px;"><label style="font-size:11px;font-weight:500;color:#5F5E5A;display:block;margin-bottom:3px;">Gist ID</label><input type="text" id="login-gist-id" style="width:100%;padding:7px 10px;border:var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:#FDFCFA;outline:none;" placeholder="ej: a1b2c3d4e5f6..."></div>
+        <div style="margin-bottom:9px;"><label style="font-size:11px;font-weight:500;color:#5F5E5A;display:block;margin-bottom:3px;">GitHub Token (ghp_...)</label><input type="password" id="login-gist-token" style="width:100%;padding:7px 10px;border:var(--border);border-radius:8px;font-size:12px;font-family:inherit;background:#FDFCFA;outline:none;" placeholder="ghp_xxxxxxxxxxxx"></div>
+        <button onclick="AUTH.loginSaveSync()" style="width:100%;padding:8px;background:var(--gray-light);border:var(--border);border-radius:8px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;"><i class="bi bi-cloud-check me-1"></i> Conectar y sincronizar</button>
+        <div id="login-sync-status" style="font-size:11px;margin-top:6px;display:none;"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1031,13 +1043,20 @@ const AUTH = (() => {
   function _showLogin() {
     const ov = document.getElementById('auth-overlay');
     if (ov) ov.style.display = 'flex';
-    // Enter key support
     setTimeout(() => {
+      // Pre-fill gist fields if already configured
+      const gi = document.getElementById('login-gist-id');
+      const gt = document.getElementById('login-gist-token');
+      if (gi) gi.value = _gistId();
+      if (gt && _gistToken()) gt.value = _gistToken();
+      // Collapse sync panel if already configured
+      const body = document.getElementById('auth-sync-body');
+      if (body && _syncEnabled()) body.style.display = 'none';
       ['auth-username','auth-password'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
       });
-    }, 100);
+    }, 50);
   }
 
   function _applySession() {
@@ -1219,7 +1238,39 @@ const AUTH = (() => {
     showToast('Usuario eliminado');
   }
 
-  return { boot, login, logout, getCurrentUser, isAdmin, requireAdmin, openUsersModal, openUserForm, closeUserForm, saveUser, deleteUser, _loadUsers: loadUsers };
+  async function loginSaveSync() {
+    const gistId    = document.getElementById('login-gist-id').value.trim();
+    const gistToken = document.getElementById('login-gist-token').value.trim();
+    const statusEl  = document.getElementById('login-sync-status');
+    const show = (msg, color) => { statusEl.style.display=''; statusEl.style.color=color; statusEl.innerHTML=msg; };
+    if (!gistId || !gistToken) { show('⚠ Completa ambos campos.', 'var(--amber)'); return; }
+    show('⏳ Conectando...', 'var(--gray)');
+    try {
+      const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json' }
+      });
+      if (r.status === 401) { show('✗ Token inválido o sin permiso gist.', 'var(--red)'); return; }
+      if (r.status === 404) { show('✗ Gist ID no encontrado.', 'var(--red)'); return; }
+      if (!r.ok) { show(`✗ Error HTTP ${r.status}.`, 'var(--red)'); return; }
+      const data = await r.json();
+      const content = data?.files?.['kpi_users.json']?.content;
+      if (!content) { show('✗ El Gist no tiene el archivo kpi_users.json.', 'var(--red)'); return; }
+      const cloudUsers = JSON.parse(content)?.users;
+      if (!cloudUsers || cloudUsers.length === 0) { show('✗ No hay usuarios en el Gist.', 'var(--red)'); return; }
+      // Save credentials and users locally
+      localStorage.setItem('kpi_gist_id',    gistId);
+      localStorage.setItem('kpi_gist_token', gistToken);
+      localStorage.setItem(USERS_KEY, encrypt(JSON.stringify(cloudUsers)));
+      show(`✓ ${cloudUsers.length} usuario(s) sincronizados. Ahora puedes ingresar.`, 'var(--green)');
+      // Hide the sync panel body after success
+      const body = document.getElementById('auth-sync-body');
+      if (body) body.style.display = 'none';
+    } catch(e) {
+      show('✗ Error de red.', 'var(--red)');
+    }
+  }
+
+  return { boot, login, logout, loginSaveSync, getCurrentUser, isAdmin, requireAdmin, openUsersModal, openUserForm, closeUserForm, saveUser, deleteUser, _loadUsers: loadUsers };
 })();
 </script>
 <script>

@@ -945,7 +945,31 @@ const AUTH = (() => {
   }
   function saveUsers(users) {
     localStorage.setItem(USERS_KEY, encrypt(JSON.stringify(users)));
-    _pushUsersToCloud(users); // async fire-and-forget
+    _pushUsersToCloud(users);
+  }
+
+  // Crea el archivo de datos del usuario en el Gist si no existe
+  async function _ensureUserDataFile(userId) {
+    const gistId    = localStorage.getItem('kpi_gist_id');
+    const gistToken = localStorage.getItem('kpi_gist_token');
+    if (!gistId || !gistToken) return;
+    const fileName = `kpi_data_u${userId}.json`;
+    try {
+      // Check if file already exists
+      const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+        headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json' }
+      });
+      if (!r.ok) return;
+      const gist = await r.json();
+      if (gist?.files?.[fileName]) return; // already exists
+      // Create empty data file for this user
+      const emptyData = { tasks:[], templates:[], holidays:[], settings:{ work_start:'07:45', work_end:'17:30', lunch_minutes:60, country_code:'CO' }, nextTaskId:1, nextTemplateId:1, nextHolidayId:1 };
+      await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `token ${gistToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+        body: JSON.stringify({ files: { [fileName]: { content: JSON.stringify(emptyData) } } })
+      });
+    } catch { /* silently ignore */ }
   }
   function loadSession() {
     try {
@@ -1222,12 +1246,18 @@ const AUTH = (() => {
       if (users.find(u => u.username === username)) { showErr('Ese nombre de usuario ya existe.'); return; }
       const newId = Math.max(0, ...users.map(u => u.id)) + 1;
       users.push({ id: newId, username, fullname, role, passwordHash: hashPassword(password), createdAt: new Date().toISOString() });
+      saveUsers(users);
+      _ensureUserDataFile(newId);
+      _renderUsersTable();
+      closeUserForm();
+      showToast('✓ Usuario creado correctamente');
+      return;
     }
-
+    // Edit path: save updated users
     saveUsers(users);
     _renderUsersTable();
     closeUserForm();
-    showToast('✓ Usuario guardado correctamente');
+    showToast('✓ Usuario actualizado correctamente');
   }
 
   function deleteUser(id) {

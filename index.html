@@ -662,59 +662,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:#F5F3E
 <!-- TOAST -->
 <!-- AUTH OVERLAY -->
 <div id="auth-overlay">
-  <!-- SETUP SCREEN (first run / new device) -->
-  <div class="auth-card" id="setup-card" style="display:none;max-width:520px;">
-    <div class="auth-brand">
-      <div class="auth-brand-icon"><i class="bi bi-github"></i></div>
-      <div><div style="font-size:14px;font-weight:600;">KPI Tracker — Configuración inicial</div><div style="font-size:10px;color:var(--gray);">Conecta con tu repositorio GitHub para sincronizar datos entre dispositivos</div></div>
-    </div>
-    <div style="background:var(--blue-light);border:0.5px solid var(--blue-mid);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--blue);margin-bottom:18px;line-height:1.6;">
-      <strong><i class="bi bi-info-circle-fill me-1"></i>¿Cómo funciona?</strong><br>
-      Los datos se guardan como archivos JSON encriptados (AES-256) en tu repositorio GitHub.
-      Todos los dispositivos leen y escriben el mismo archivo — sin servidores externos.
-    </div>
-    <div class="mb-3"><label class="form-label-sm">Propietario del repositorio (usuario u organización)</label><input type="text" class="app-input" id="gh-owner" placeholder="ej: miusuario" autocomplete="off"></div>
-    <div class="mb-3"><label class="form-label-sm">Nombre del repositorio</label><input type="text" class="app-input" id="gh-repo" placeholder="ej: kpi-tracker" autocomplete="off"></div>
-    <div class="mb-3">
-      <label class="form-label-sm">Token de acceso personal (PAT) <a href="https://github.com/settings/tokens/new?scopes=repo&description=KPI+Tracker" target="_blank" style="color:var(--blue);font-size:11px;">(crear aquí)</a></label>
-      <div style="position:relative;">
-        <input type="password" class="app-input" id="gh-token" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" style="padding-right:36px;">
-        <button onclick="togglePwField('gh-token',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray);cursor:pointer;font-size:13px;padding:0;"><i class="bi bi-eye"></i></button>
-      </div>
-      <div style="font-size:11px;color:var(--gray);margin-top:4px;">Necesita permisos: <code>repo</code> (Contents: Read & Write)</div>
-    </div>
-    <div id="setup-error" style="display:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:12px;"></div>
-    <button class="btn-primary-sm w-100" id="setup-btn" onclick="AUTH.saveSetup()" style="padding:10px;font-size:14px;justify-content:center;"><i class="bi bi-check-circle me-2"></i>Guardar y continuar</button>
-    <p style="font-size:11px;color:var(--gray);text-align:center;margin-top:12px;margin-bottom:0;">El token se guarda solo en este dispositivo (localStorage). El repositorio puede ser privado.</p>
-  </div>
-
-  <!-- LOGIN SCREEN -->
-  <div class="auth-card" id="login-card">
+  <div class="auth-card">
     <div class="auth-brand">
       <div class="auth-brand-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
       <div><div style="font-size:14px;font-weight:600;">KPI Tracker</div><div style="font-size:10px;color:var(--gray);">Acceso restringido</div></div>
     </div>
-    <div id="gh-status-banner" style="display:none;background:var(--green-light);border:0.5px solid #C0DD97;border-radius:8px;padding:8px 12px;font-size:12px;color:var(--green-dark);margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-      <i class="bi bi-cloud-check-fill"></i><span id="gh-status-text">Datos sincronizados con GitHub</span>
-    </div>
-    <div class="mb-3"><label class="form-label-sm">Usuario</label><input type="text" class="app-input" id="auth-username" placeholder="nombre de usuario" autocomplete="username"></div>
-    <div class="mb-3">
-      <label class="form-label-sm">Contraseña</label>
-      <div style="position:relative;">
-        <input type="password" class="app-input" id="auth-password" placeholder="••••••••" autocomplete="current-password" style="padding-right:36px;">
-        <button onclick="togglePwField('auth-password',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--gray);cursor:pointer;font-size:13px;padding:0;"><i class="bi bi-eye"></i></button>
-      </div>
-    </div>
-    <div id="auth-error" style="display:none;background:var(--red-light);color:var(--red);border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:12px;">
-      <i class="bi bi-exclamation-circle-fill me-1"></i><span id="auth-error-msg"></span>
-    </div>
-    <div id="auth-loading" style="display:none;text-align:center;padding:8px;font-size:12px;color:var(--gray);">
-      <span class="spinner-border spinner-border-sm me-2" style="width:14px;height:14px;border-width:2px;"></span>Verificando con GitHub…
-    </div>
-    <button class="btn-primary-sm w-100" onclick="AUTH.login()" style="padding:10px;font-size:14px;justify-content:center;"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión</button>
-    <div style="text-align:center;margin-top:12px;">
-      <button onclick="AUTH.showSetup()" style="background:none;border:none;font-size:11px;color:var(--gray);cursor:pointer;font-family:inherit;text-decoration:underline;">Cambiar configuración de GitHub</button>
-    </div>
+    <p class="auth-title">Iniciar sesión</p>
+    <p class="auth-sub">Ingresa tus credenciales para continuar</p>
+    <div id="auth-error" class="auth-error"><i class="bi bi-exclamation-circle me-1"></i><span id="auth-error-msg">Usuario o contraseña incorrectos.</span></div>
+    <div class="auth-field"><label>Usuario</label><input type="text" id="auth-username" placeholder="Ej: admin" autocomplete="username"></div>
+    <div class="auth-field"><label>Contraseña</label><input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="auth-btn" onclick="AUTH.login()"><i class="bi bi-box-arrow-in-right me-1"></i> Entrar</button>
   </div>
 </div>
 
@@ -935,285 +893,216 @@ body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:#F5F3E
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
-// AUTH v4 — GitHub API + AES-256-GCM encryption
-// Data lives in GitHub repo as encrypted JSON files.
-// localStorage stores only: gh credentials, session token.
+// AUTH — Authentication & User Management
 // ═══════════════════════════════════════════════════════════════
 const AUTH = (() => {
-  const GH_OWNER_KEY = 'kpi_gh_FSand5';
-  const GH_REPO_KEY  = 'kpi_gh_task-tracking2026.github.io';
-  const GH_TOKEN_KEY = 'kpi_gh_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';
-  const SESSION_KEY  = 'kpi_session_v2';
-  const USERS_FILE   = 'kpi-data/users.json';
-  const TASKS_FILE   = 'kpi-data/tasks.json';
-  const APP_SECRET   = 'KPI-Tracker-AES-2025!#SecureKey$';
+  const USERS_KEY   = 'kpi_users_v1';
+  const SESSION_KEY = 'kpi_session_v1';
 
-  // ── AES-GCM helpers ──────────────────────────────────────────
-  async function _deriveKey(secret) {
-    const enc = new TextEncoder();
-    const km = await crypto.subtle.importKey('raw', enc.encode(secret), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name:'PBKDF2', salt: enc.encode('kpi-aes-salt-v1'), iterations:100000, hash:'SHA-256' },
-      km, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
-    );
+  // ── Simple XOR + base64 obfuscation (suitable for localStorage) ──
+  const _key = 'KPITracker2025!';
+  function _xor(str) {
+    let out = '';
+    for (let i = 0; i < str.length; i++)
+      out += String.fromCharCode(str.charCodeAt(i) ^ _key.charCodeAt(i % _key.length));
+    return out;
   }
-  async function _encrypt(obj, secret) {
-    const key = await _deriveKey(secret);
-    const iv  = crypto.getRandomValues(new Uint8Array(12));
-    const enc = new TextEncoder();
-    const ct  = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
-    const buf = new Uint8Array(12 + ct.byteLength);
-    buf.set(iv); buf.set(new Uint8Array(ct), 12);
-    return btoa(String.fromCharCode(...buf));
+  function encrypt(plain) {
+    try { return btoa(unescape(encodeURIComponent(_xor(plain)))); } catch { return ''; }
   }
-  async function _decrypt(b64, secret) {
-    const buf = new Uint8Array(atob(b64).split('').map(c=>c.charCodeAt(0)));
-    const iv  = buf.slice(0,12);
-    const ct  = buf.slice(12);
-    const key = await _deriveKey(secret);
-    const dec = new TextDecoder();
-    const pt  = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, ct);
-    return JSON.parse(dec.decode(pt));
+  function decrypt(cipher) {
+    try { return _xor(decodeURIComponent(escape(atob(cipher)))); } catch { return ''; }
   }
-  async function _sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  function hashPassword(pw) {
+    // Simple but consistent: XOR + base64 of (pw + reversed(pw))
+    const combined = pw + pw.split('').reverse().join('') + _key;
+    return encrypt(combined);
   }
 
-  // ── GitHub API ───────────────────────────────────────────────
-  function _ghCfg() {
-    return {
-      owner: localStorage.getItem(GH_OWNER_FSand5)||'',
-      repo:  localStorage.getItem(GH_REPO_task-tracking2026.github.io)||'',
-      token: localStorage.getItem(GH_TOKEN_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)||''
-    };
-  }
-  function _ghConfigured() {
-    const g = _ghCfg(); return !!(g.owner && g.repo && g.token);
-  }
-  async function _ghGet(path) {
-    const { owner, repo, token } = _ghCfg();
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      headers: { Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json', 'Cache-Control':'no-cache' }
-    });
-    if (res.status === 404) return null;
-    if (!res.ok) throw new Error(`GitHub GET ${res.status}: ${await res.text()}`);
-    const data = await res.json();
-    return { content: atob(data.content.replace(/\n/g,'')), sha: data.sha };
-  }
-  async function _ghPut(path, content, sha) {
-    const { owner, repo, token } = _ghCfg();
-    const body = {
-      message: `KPI Tracker sync ${new Date().toISOString()}`,
-      content: btoa(unescape(encodeURIComponent(content))),
-    };
-    if (sha) body.sha = sha;
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-      method:'PUT',
-      headers: { Authorization:`token ${token}`, 'Content-Type':'application/json', Accept:'application/vnd.github.v3+json' },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error(`GitHub PUT ${res.status}: ${await res.text()}`);
-    return await res.json();
-  }
-
-  // SHA cache to avoid re-fetching file metadata every write
-  const _shas = {};
-
-  // ── Users (encrypted in GitHub) ──────────────────────────────
-  async function _loadUsers() {
-    const file = await _ghGet(USERS_FILE);
-    if (!file) return [];
+  // ── Storage helpers ──
+  function loadUsers() {
     try {
-      const dec = await _decrypt(file.content.trim(), APP_SECRET);
-      _shas[USERS_FILE] = file.sha;
-      return dec || [];
-    } catch { return []; }
+      const raw = localStorage.getItem(USERS_KEY);
+      if (!raw) return null;
+      return JSON.parse(decrypt(raw));
+    } catch { return null; }
   }
-  async function _saveUsers(users) {
-    const enc = await _encrypt(users, APP_SECRET);
-    const existing = await _ghGet(USERS_FILE);
-    const sha = existing ? existing.sha : undefined;
-    await _ghPut(USERS_FILE, enc, sha);
-    const updated = await _ghGet(USERS_FILE);
-    if (updated) _shas[USERS_FILE] = updated.sha;
+  function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, encrypt(JSON.stringify(users)));
+    _pushUsersToCloud(users); // async fire-and-forget
   }
-  async function _ensureDefaults() {
-    let users = await _loadUsers();
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return null;
+      return JSON.parse(decrypt(raw));
+    } catch { return null; }
+  }
+  function saveSession(user) {
+    localStorage.setItem(SESSION_KEY, encrypt(JSON.stringify({ id: user.id, username: user.username, fullname: user.fullname, role: user.role })));
+  }
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  // ── Cloud sync via GitHub Gist API (CORS-compatible, free) ──────
+  // Credentials stored in localStorage, configurable from Settings UI
+  function _gistId()    { return localStorage.getItem('kpi_gist_id')    || ''; }
+  function _gistToken() { return localStorage.getItem('kpi_gist_token') || ''; }
+  function _syncEnabled() { return !!(_gistId() && _gistToken()); }
+
+  async function _pullUsersFromCloud() {
+    if (!_syncEnabled()) return null;
+    try {
+      const r = await fetch(`https://api.github.com/gists/${_gistId()}`, {
+        headers: { 'Authorization': `token ${_gistToken()}`, 'Accept': 'application/vnd.github+json' }
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      const content = data?.files?.['kpi_users.json']?.content;
+      if (!content) return null;
+      const parsed = JSON.parse(content);
+      return parsed?.users || null;
+    } catch { return null; }
+  }
+
+  async function _pushUsersToCloud(users) {
+    if (!_syncEnabled()) return;
+    try {
+      await fetch(`https://api.github.com/gists/${_gistId()}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `token ${_gistToken()}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+        body: JSON.stringify({ files: { 'kpi_users.json': { content: JSON.stringify({ users }) } } })
+      });
+    } catch { /* silently ignore */ }
+  }
+  function ensureDefaults() {
+    let users = loadUsers();
     if (!users || users.length === 0) {
       users = [{
-        id:1, username:'admin', fullname:'Administrador', role:'admin',
-        passwordHash: await _sha256('admin123'),
+        id: 1,
+        username: 'admin',
+        fullname: 'Administrador',
+        role: 'admin',
+        passwordHash: hashPassword('admin123'),
         createdAt: new Date().toISOString()
       }];
-      await _saveUsers(users);
+      saveUsers(users);
     }
     return users;
   }
 
-  // ── Session (localStorage only — just uid/username, no sensitive data) ──
-  function _saveSession(user) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ id:user.id, username:user.username, fullname:user.fullname, role:user.role }));
-  }
-  function _loadSession() {
-    try { const raw=localStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
-  }
-  function _clearSession() { localStorage.removeItem(SESSION_KEY); }
-
   let _currentUser = null;
+
   function getCurrentUser() { return _currentUser; }
+
   function isAdmin() { return _currentUser && _currentUser.role === 'admin'; }
-  function requireAdmin() {
-    if (!isAdmin()) { showToast('⛔ Solo administradores pueden realizar esta acción'); return false; }
+
+  // ── Protect write actions ──
+  function requireAdmin(action) {
+    if (!isAdmin()) { showToast('⛔ Solo los administradores pueden realizar esta acción'); return false; }
     return true;
   }
 
-  // ── Setup screen ────────────────────────────────────────────
-  function showSetup() {
-    document.getElementById('login-card').style.display = 'none';
-    document.getElementById('setup-card').style.display = '';
-    document.getElementById('gh-owner').value = localStorage.getItem(GH_OWNER_KEY)||'';
-    document.getElementById('gh-repo').value  = localStorage.getItem(GH_REPO_KEY)||'';
-    document.getElementById('gh-token').value = localStorage.getItem(GH_TOKEN_KEY)||'';
-    document.getElementById('auth-overlay').style.display = 'flex';
-  }
-
-  async function saveSetup() {
-    const owner = document.getElementById('gh-owner').value.trim();
-    const repo  = document.getElementById('gh-repo').value.trim();
-    const token = document.getElementById('gh-token').value.trim();
-    const errEl = document.getElementById('setup-error');
-    const btn   = document.getElementById('setup-btn');
-    errEl.style.display='none';
-    if (!owner||!repo||!token) { errEl.textContent='Completa todos los campos.'; errEl.style.display=''; return; }
-    btn.disabled=true; btn.innerHTML='<span class="spinner-border spinner-border-sm me-2" style="width:14px;height:14px;border-width:2px;"></span>Verificando acceso…';
-    try {
-      // Test access
-      const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
-        headers:{ Authorization:`token ${token}`, Accept:'application/vnd.github.v3+json' }
-      });
-      if (!res.ok) throw new Error(`Repositorio no encontrado o sin acceso (${res.status}). Verifica el nombre y los permisos del token.`);
-      localStorage.setItem(GH_OWNER_KEY, owner);
-      localStorage.setItem(GH_REPO_KEY, repo);
-      localStorage.setItem(GH_TOKEN_KEY, token);
-      document.getElementById('setup-card').style.display = 'none';
-      document.getElementById('login-card').style.display = '';
-      _showLoginLoading('Inicializando datos en GitHub…');
-      await _ensureDefaults();
-      _hideLoginLoading();
-      showToast('✓ GitHub conectado correctamente');
-    } catch(e) {
-      errEl.textContent = e.message;
-      errEl.style.display='';
-    } finally {
-      btn.disabled=false;
-      btn.innerHTML='<i class="bi bi-check-circle me-2"></i>Guardar y continuar';
-    }
-  }
-
-  function _showLoginLoading(msg) {
-    const el=document.getElementById('auth-loading');
-    if(el){el.style.display='';el.querySelector('span+*') ? el.lastChild.textContent=msg : null;}
-  }
-  function _hideLoginLoading() {
-    const el=document.getElementById('auth-loading'); if(el) el.style.display='none';
-  }
-
-  // ── Boot ─────────────────────────────────────────────────────
+  // ── Boot: check session or show login ──
   async function boot() {
-    document.getElementById('auth-overlay').style.display = 'flex';
-    document.getElementById('login-card').style.display = '';
-    document.getElementById('setup-card').style.display = 'none';
-
-    if (!_ghConfigured()) { showSetup(); return; }
-
-    // Check for valid session
-    const sess = _loadSession();
-    if (sess) {
-      _showLoginLoading('Verificando sesión…');
-      try {
-        const users = await _loadUsers();
-        const user  = users.find(u => u.id === sess.id && u.username === sess.username);
-        if (user) {
-          _currentUser = { id:user.id, username:user.username, fullname:user.fullname, role:user.role };
-          _applySession(true);
-          return;
-        }
-      } catch(e) { console.warn('Session check error:', e); }
-      _hideLoginLoading();
-      _clearSession();
+    // Pull users from cloud first so credentials are always up to date
+    if (_syncEnabled()) {
+      const cloudUsers = await _pullUsersFromCloud();
+      if (cloudUsers && cloudUsers.length > 0) {
+        localStorage.setItem(USERS_KEY, encrypt(JSON.stringify(cloudUsers)));
+      }
     }
-
-    // Show login, pre-load users in background
-    _ghGet(USERS_FILE).then(f => {
-      const banner = document.getElementById('gh-status-banner');
-      if (banner) banner.style.display = f ? 'flex' : 'none';
-      if (f) { document.getElementById('gh-status-text').textContent = 'Datos sincronizados con GitHub ✓'; }
-    }).catch(()=>{});
-    document.getElementById('auth-overlay').style.display = 'flex';
-  }
-
-  async function login() {
-    const username = (document.getElementById('auth-username')?.value||'').trim().toLowerCase();
-    const password = document.getElementById('auth-password')?.value||'';
-    const errBox   = document.getElementById('auth-error');
-    const errMsg   = document.getElementById('auth-error-msg');
-    const showErr  = msg => { errMsg.textContent=msg; errBox.style.display=''; };
-    errBox.style.display='none';
-    if (!username||!password) { showErr('Completa todos los campos.'); return; }
-    if (!_ghConfigured()) { showSetup(); return; }
-
-    _showLoginLoading('Autenticando con GitHub…');
-    try {
-      const users = await _loadUsers();
-      const pwHash = await _sha256(password);
-      const user   = users.find(u => u.username === username && u.passwordHash === pwHash);
-      if (!user) { showErr('Usuario o contraseña incorrectos.'); _hideLoginLoading(); return; }
-      _currentUser = { id:user.id, username:user.username, fullname:user.fullname, role:user.role };
-      _saveSession(_currentUser);
-      _applySession(false);
-    } catch(e) {
-      showErr('Error de conexión con GitHub: ' + e.message);
-      _hideLoginLoading();
+    ensureDefaults();
+    const session = loadSession();
+    const users = loadUsers() || [];
+    if (session) {
+      const user = users.find(u => u.id === session.id && u.username === session.username);
+      if (user) {
+        _currentUser = { id: user.id, username: user.username, fullname: user.fullname, role: user.role };
+        _applySession();
+        initApp();
+        return;
+      }
     }
+    _showLogin();
   }
 
-  function logout() {
-    if (!confirm('¿Cerrar sesión?')) return;
-    if (STATE.activeTaskId) { clearInterval(STATE.activeTimerInterval); STATE.activeTimerInterval=null; STATE.activeTaskId=null; }
-    saveState().finally(() => {
-      _clearSession();
-      _currentUser = null;
-      STATE.tasks=[]; STATE.templates=[]; STATE.holidays=[];
-      STATE.nextTaskId=1; STATE.nextTemplateId=1; STATE.nextHolidayId=1;
-      STATE.settings={work_start:'07:45',work_end:'17:30',lunch_minutes:60,country_code:'CO'};
-      location.reload();
-    });
+  function _showLogin() {
+    const ov = document.getElementById('auth-overlay');
+    if (ov) ov.style.display = 'flex';
+    // Enter key support
+    setTimeout(() => {
+      ['auth-username','auth-password'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+      });
+    }, 100);
   }
 
-  function _applySession(fromCache) {
+  function _applySession() {
     const ov = document.getElementById('auth-overlay');
     if (ov) ov.style.display = 'none';
+    // Update sidebar user card
     const u = _currentUser;
     const initials = u.fullname.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,3);
     const el = id => document.getElementById(id);
     if (el('sidebar-avatar'))   el('sidebar-avatar').textContent = initials;
     if (el('sidebar-username')) el('sidebar-username').textContent = u.fullname;
-    if (el('sidebar-userrole')) el('sidebar-userrole').textContent = u.role==='admin'?'Administrador':'Usuario';
+    if (el('sidebar-userrole')) el('sidebar-userrole').textContent = u.role === 'admin' ? 'Administrador' : 'Visualizador';
+    // Show users nav only for admin
     const navUsers = el('nav-users');
-    if (navUsers) navUsers.style.display = u.role==='admin' ? '' : 'none';
+    if (navUsers) navUsers.style.display = u.role === 'admin' ? '' : 'none';
+    // Show logout on mobile navbar
     const mobileLogout = el('mobileLogoutBtn');
     if (mobileLogout) mobileLogout.style.display = '';
+    // Update mobile navbar brand subtitle with user name
     const mobileNavBrand = document.querySelector('.mobile-nav-brand');
     if (mobileNavBrand) {
       let sub = mobileNavBrand.querySelector('.mobile-nav-sub');
-      if (!sub) { sub=document.createElement('span'); sub.className='mobile-nav-sub'; sub.style.cssText='font-size:10px;color:var(--gray);font-weight:400;display:block;line-height:1;'; const d=mobileNavBrand.querySelector('div'); d?d.after(sub):mobileNavBrand.append(sub); }
+      if (!sub) { sub = document.createElement('span'); sub.className = 'mobile-nav-sub'; sub.style.cssText = 'font-size:10px;color:var(--gray);font-weight:400;display:block;line-height:1;'; mobileNavBrand.querySelector('div') ? mobileNavBrand.querySelector('div').after(sub) : mobileNavBrand.append(sub); }
       sub.textContent = u.fullname;
     }
+  }
+
+  async function login() {
+    const username = (document.getElementById('auth-username')?.value || '').trim().toLowerCase();
+    const password = document.getElementById('auth-password')?.value || '';
+    const errBox   = document.getElementById('auth-error');
+    const errMsg   = document.getElementById('auth-error-msg');
+    const showErr  = msg => { errMsg.textContent = msg; errBox.style.display = ''; };
+
+    if (!username || !password) { showErr('Completa todos los campos.'); return; }
+
+    // Pull latest users from cloud before validating
+    if (_syncEnabled()) {
+      const cloudUsers = await _pullUsersFromCloud();
+      if (cloudUsers && cloudUsers.length > 0) {
+        localStorage.setItem(USERS_KEY, encrypt(JSON.stringify(cloudUsers)));
+      }
+    }
+
+    const users = loadUsers() || [];
+    const user  = users.find(u => u.username === username.toLowerCase());
+    if (!user || user.passwordHash !== hashPassword(password)) {
+      showErr('Usuario o contraseña incorrectos.'); return;
+    }
+    errBox.style.display = 'none';
+    _currentUser = { id: user.id, username: user.username, fullname: user.fullname, role: user.role };
+    saveSession(_currentUser);
+    _applySession();
+    // Init app
     initApp();
   }
 
-  // ── Users CRUD ───────────────────────────────────────────────
+  function logout() {
+    if (!confirm('¿Cerrar sesión?')) return;
+    clearSession();
+    _currentUser = null;
+    location.reload();
+  }
+
+  // ── Users CRUD modal ──
   function openUsersModal() {
     if (!requireAdmin()) return;
     _renderUsersTable();
@@ -1221,168 +1110,116 @@ const AUTH = (() => {
     new bootstrap.Modal(document.getElementById('usersModal')).show();
   }
 
-  async function _renderUsersTable() {
-    const wrap = document.getElementById('users-table-wrap');
+  function _renderUsersTable() {
+    const users = loadUsers() || [];
+    const wrap  = document.getElementById('users-table-wrap');
     if (!wrap) return;
-    wrap.innerHTML = '<p style="font-size:12px;color:var(--gray);text-align:center;padding:16px 0;"><span class="spinner-border spinner-border-sm me-2" style="width:12px;height:12px;border-width:2px;"></span>Cargando usuarios de GitHub…</p>';
-    try {
-      const users = await _loadUsers();
-      if (!users.length) { wrap.innerHTML='<p style="font-size:13px;color:var(--gray);text-align:center;padding:20px 0;">No hay usuarios.</p>'; return; }
-      wrap.innerHTML = `<table class="users-table"><thead><tr>
-        <th>Usuario</th><th>Nombre completo</th><th>Rol</th><th class="hide-mobile">Creado</th><th></th>
-      </tr></thead><tbody>
-        ${users.map(u=>`<tr>
-          <td><code style="font-size:12px;">${u.username}</code></td>
-          <td>${u.fullname}</td>
-          <td><span class="role-badge ${u.role==='admin'?'role-admin':'role-viewer'}"><i class="bi bi-${u.role==='admin'?'shield-check':'eye'}"></i> ${u.role==='admin'?'Admin':'Viewer'}</span></td>
-          <td class="hide-mobile" style="font-size:11px;color:var(--gray);">${u.createdAt?new Date(u.createdAt).toLocaleDateString('es-CO'):'—'}</td>
-          <td><div style="display:flex;gap:5px;">
+    if (!users.length) { wrap.innerHTML = '<p style="font-size:13px;color:var(--gray);text-align:center;padding:20px 0;">No hay usuarios registrados.</p>'; return; }
+    wrap.innerHTML = `<table class="users-table"><thead><tr>
+      <th>Usuario</th><th>Nombre completo</th><th>Rol</th><th class="hide-mobile">Creado</th><th></th>
+    </tr></thead><tbody>
+      ${users.map(u => `<tr>
+        <td><code style="font-size:12px;">${u.username}</code></td>
+        <td>${u.fullname}</td>
+        <td><span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-viewer'}"><i class="bi bi-${u.role==='admin'?'shield-check':'eye'}"></i> ${u.role === 'admin' ? 'Admin' : 'Viewer'}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--gray);">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-CO') : '—'}</td>
+        <td>
+          <div style="display:flex;gap:5px;">
             <button class="btn-action" onclick="AUTH.openUserForm(${u.id})" title="Editar"><i class="bi bi-pencil"></i></button>
-            ${u.id!==_currentUser.id?`<button class="btn-action btn-delete" onclick="AUTH.deleteUser(${u.id})" title="Eliminar"><i class="bi bi-trash"></i></button>`:'<span style="width:28px;"></span>'}
-          </div></td>
-        </tr>`).join('')}
-      </tbody></table>`;
-    } catch(e) { wrap.innerHTML=`<p style="color:var(--red);font-size:12px;padding:12px;">Error cargando usuarios: ${e.message}</p>`; }
+            ${u.id !== _currentUser.id ? `<button class="btn-action btn-delete" onclick="AUTH.deleteUser(${u.id})" title="Eliminar"><i class="bi bi-trash"></i></button>` : '<span style="width:28px;"></span>'}
+          </div>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
   }
 
   function openUserForm(editId) {
-    const wrap  = document.getElementById('user-form-wrap');
+    const wrap = document.getElementById('user-form-wrap');
     const title = document.getElementById('user-form-title');
-    const errDiv= document.getElementById('user-form-error');
-    if (errDiv) errDiv.style.display='none';
-    wrap.style.display='';
-    document.getElementById('uf-edit-id').value = editId||'';
+    const errDiv = document.getElementById('user-form-error');
+    if (errDiv) errDiv.style.display = 'none';
+    wrap.style.display = '';
+    document.getElementById('uf-edit-id').value = editId || '';
     if (editId) {
-      _loadUsers().then(users => {
-        const u = users.find(x=>x.id===editId); if(!u) return;
-        title.textContent=`Editar: ${u.username}`;
-        document.getElementById('uf-username').value=u.username;
-        document.getElementById('uf-fullname').value=u.fullname;
-        document.getElementById('uf-role').value=u.role;
-        document.getElementById('uf-password').value='';
-        document.getElementById('uf-pass-hint').textContent='(dejar vacío = sin cambios)';
-      });
+      const users = loadUsers() || [];
+      const u = users.find(x => x.id === editId);
+      if (!u) return;
+      title.textContent = `Editar: ${u.username}`;
+      document.getElementById('uf-username').value = u.username;
+      document.getElementById('uf-fullname').value = u.fullname;
+      document.getElementById('uf-role').value    = u.role;
+      document.getElementById('uf-password').value = '';
+      document.getElementById('uf-pass-hint').textContent = '(dejar vacío = sin cambios)';
     } else {
-      title.textContent='Nuevo usuario';
-      ['uf-username','uf-fullname','uf-password'].forEach(id=>document.getElementById(id).value='');
-      document.getElementById('uf-role').value='viewer';
-      document.getElementById('uf-pass-hint').textContent='(requerida)';
+      title.textContent = 'Nuevo usuario';
+      document.getElementById('uf-username').value = '';
+      document.getElementById('uf-fullname').value = '';
+      document.getElementById('uf-role').value    = 'viewer';
+      document.getElementById('uf-password').value = '';
+      document.getElementById('uf-pass-hint').textContent = '(requerida)';
     }
     document.getElementById('uf-username').focus();
   }
 
   function closeUserForm() {
     const wrap = document.getElementById('user-form-wrap');
-    if (wrap) wrap.style.display='none';
+    if (wrap) wrap.style.display = 'none';
   }
 
-  async function saveUser() {
+  function saveUser() {
     const editId   = document.getElementById('uf-edit-id').value;
     const username = document.getElementById('uf-username').value.trim().toLowerCase();
     const fullname = document.getElementById('uf-fullname').value.trim();
     const password = document.getElementById('uf-password').value;
     const role     = document.getElementById('uf-role').value;
     const errDiv   = document.getElementById('user-form-error');
-    const showErr  = msg => { errDiv.textContent=msg; errDiv.style.display=''; };
-    errDiv.style.display='none';
-    if (!username||!fullname) { showErr('Usuario y nombre completo son obligatorios.'); return; }
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) { showErr('El usuario: 3-20 chars, solo letras/números/_'); return; }
 
-    const saveBtn = document.querySelector('#user-form-wrap .btn-primary-sm');
-    if (saveBtn) { saveBtn.disabled=true; saveBtn.innerHTML='<span class="spinner-border spinner-border-sm me-2" style="width:12px;height:12px;border-width:2px;"></span>Guardando…'; }
-    try {
-      let users = await _loadUsers();
-      if (editId) {
-        const id  = parseInt(editId);
-        const idx = users.findIndex(u=>u.id===id);
-        if (idx===-1) { showErr('Usuario no encontrado.'); return; }
-        if (users.find(u=>u.username===username&&u.id!==id)) { showErr('Ese usuario ya existe.'); return; }
-        users[idx].username=username; users[idx].fullname=fullname; users[idx].role=role;
-        if (password) {
-          if (password.length<6) { showErr('La contraseña debe tener al menos 6 caracteres.'); return; }
-          users[idx].passwordHash = await _sha256(password);
-        }
-      } else {
-        if (!password||password.length<6) { showErr('La contraseña debe tener al menos 6 caracteres.'); return; }
-        if (users.find(u=>u.username===username)) { showErr('Ese usuario ya existe.'); return; }
-        users.push({ id: Math.max(0,...users.map(u=>u.id))+1, username, fullname, role, passwordHash: await _sha256(password), createdAt: new Date().toISOString() });
-      }
-      await _saveUsers(users);
-      _renderUsersTable();
-      closeUserForm();
-      showToast('✓ Usuario guardado en GitHub');
-    } catch(e) { showErr('Error guardando: '+e.message); }
-    finally { if(saveBtn){saveBtn.disabled=false;saveBtn.innerHTML='<i class="bi bi-floppy me-1"></i>Guardar';} }
-  }
+    const showErr = msg => { errDiv.textContent = msg; errDiv.style.display = ''; };
+    errDiv.style.display = 'none';
 
-  async function deleteUser(id) {
-    if (!requireAdmin()) return;
-    let users = await _loadUsers();
-    const u = users.find(x=>x.id===id);
-    if (!u) return;
-    if (!confirm(`¿Eliminar al usuario "${u.username}"?\nSus datos de tareas también serán eliminados.`)) return;
-    users = users.filter(x=>x.id!==id);
-    await _saveUsers(users);
-    // Remove their task data
-    try {
-      const tasksFile = await _ghGet(TASKS_FILE);
-      if (tasksFile) {
-        const allData = await _decrypt(tasksFile.content.trim(), APP_SECRET);
-        delete allData[id];
-        const enc = await _encrypt(allData, APP_SECRET);
-        await _ghPut(TASKS_FILE, enc, tasksFile.sha);
+    if (!username || !fullname) { showErr('Usuario y nombre completo son obligatorios.'); return; }
+    if (!/^[a-z0-9_]{3,20}$/.test(username)) { showErr('El usuario debe tener 3-20 caracteres: letras, números o _.'); return; }
+
+    let users = loadUsers() || [];
+
+    if (editId) {
+      const id = parseInt(editId);
+      const idx = users.findIndex(u => u.id === id);
+      if (idx === -1) { showErr('Usuario no encontrado.'); return; }
+      const dup = users.find(u => u.username === username && u.id !== id);
+      if (dup) { showErr('Ese nombre de usuario ya existe.'); return; }
+      users[idx].username = username;
+      users[idx].fullname = fullname;
+      users[idx].role     = role;
+      if (password) {
+        if (password.length < 6) { showErr('La contraseña debe tener al menos 6 caracteres.'); return; }
+        users[idx].passwordHash = hashPassword(password);
       }
-    } catch {}
+    } else {
+      if (!password || password.length < 6) { showErr('La contraseña debe tener al menos 6 caracteres.'); return; }
+      if (users.find(u => u.username === username)) { showErr('Ese nombre de usuario ya existe.'); return; }
+      const newId = Math.max(0, ...users.map(u => u.id)) + 1;
+      users.push({ id: newId, username, fullname, role, passwordHash: hashPassword(password), createdAt: new Date().toISOString() });
+    }
+
+    saveUsers(users);
     _renderUsersTable();
-    showToast('Usuario eliminado de GitHub');
+    closeUserForm();
+    showToast('✓ Usuario guardado correctamente');
   }
 
-  // ── Task data sync ───────────────────────────────────────────
-  async function loadUserTasks() {
-    if (!_currentUser) return;
-    try {
-      const file = await _ghGet(TASKS_FILE);
-      if (!file) return;
-      _shas[TASKS_FILE] = file.sha;
-      const allData = await _decrypt(file.content.trim(), APP_SECRET);
-      const userData = allData[_currentUser.id];
-      if (!userData) return;
-      if (userData.tasks)          STATE.tasks          = userData.tasks;
-      if (userData.templates)      STATE.templates      = userData.templates;
-      if (userData.holidays)       STATE.holidays       = userData.holidays;
-      if (userData.settings)       STATE.settings       = Object.assign(STATE.settings, userData.settings);
-      if (userData.nextTaskId)     STATE.nextTaskId     = userData.nextTaskId;
-      if (userData.nextTemplateId) STATE.nextTemplateId = userData.nextTemplateId;
-      if (userData.nextHolidayId)  STATE.nextHolidayId  = userData.nextHolidayId;
-    } catch(e) { console.warn('loadUserTasks error:', e); }
+  function deleteUser(id) {
+    if (!requireAdmin()) return;
+    const users = loadUsers() || [];
+    const u = users.find(x => x.id === id);
+    if (!u) return;
+    if (!confirm(`¿Eliminar al usuario "${u.username}"?`)) return;
+    saveUsers(users.filter(x => x.id !== id));
+    _renderUsersTable();
+    showToast('Usuario eliminado');
   }
 
-  async function saveUserTasks() {
-    if (!_currentUser) return;
-    const userData = {
-      tasks: STATE.tasks, templates: STATE.templates, holidays: STATE.holidays,
-      settings: STATE.settings, nextTaskId: STATE.nextTaskId,
-      nextTemplateId: STATE.nextTemplateId, nextHolidayId: STATE.nextHolidayId,
-      savedAt: new Date().toISOString()
-    };
-    try {
-      // Read latest, merge, write
-      const file = await _ghGet(TASKS_FILE);
-      let allData = {};
-      if (file) {
-        try { allData = await _decrypt(file.content.trim(), APP_SECRET); } catch {}
-        _shas[TASKS_FILE] = file.sha;
-      }
-      allData[_currentUser.id] = userData;
-      const enc = await _encrypt(allData, APP_SECRET);
-      await _ghPut(TASKS_FILE, enc, file ? file.sha : undefined);
-    } catch(e) { console.warn('saveUserTasks error:', e); }
-  }
-
-  return { boot, login, logout, getCurrentUser, isAdmin, requireAdmin,
-           openUsersModal, openUserForm, closeUserForm, saveUser, deleteUser,
-           showSetup, saveSetup, loadUserTasks, saveUserTasks,
-           _loadUsers };
+  return { boot, login, logout, getCurrentUser, isAdmin, requireAdmin, openUsersModal, openUserForm, closeUserForm, saveUser, deleteUser, _loadUsers: loadUsers };
 })();
 </script>
 <script>
@@ -1407,19 +1244,46 @@ const STATE = {
   tasksDate: null,   // null = today
 };
 
-// ── Persistencia — GitHub (async) ────────────────────────────────────────────
-// saveState writes to GitHub; loadState reads from GitHub.
-// A write queue prevents concurrent writes clobbering each other.
-let _saveQueue = Promise.resolve();
+// ── Persistencia por usuario ──────────────────────────────────
+function _userDataKey() {
+  const u = AUTH.getCurrentUser();
+  return u ? `kpi_data_u${u.id}_v1` : null;
+}
+
 function saveState() {
-  _saveQueue = _saveQueue.then(() => AUTH.saveUserTasks()).catch(e => console.warn('saveState err:', e));
-  return _saveQueue;
+  const key = _userDataKey();
+  if (!key) return;
+  const data = {
+    tasks:           STATE.tasks,
+    templates:       STATE.templates,
+    holidays:        STATE.holidays,
+    settings:        STATE.settings,
+    nextTaskId:      STATE.nextTaskId,
+    nextTemplateId:  STATE.nextTemplateId,
+    nextHolidayId:   STATE.nextHolidayId,
+  };
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) { console.warn('saveState error', e); }
 }
-async function loadState() {
-  await AUTH.loadUserTasks();
+
+function loadState() {
+  const key = _userDataKey();
+  if (!key) return;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.tasks)          STATE.tasks          = data.tasks;
+    if (data.templates)      STATE.templates      = data.templates;
+    if (data.holidays)       STATE.holidays       = data.holidays;
+    if (data.settings)       STATE.settings       = Object.assign(STATE.settings, data.settings);
+    if (data.nextTaskId)     STATE.nextTaskId     = data.nextTaskId;
+    if (data.nextTemplateId) STATE.nextTemplateId = data.nextTemplateId;
+    if (data.nextHolidayId)  STATE.nextHolidayId  = data.nextHolidayId;
+  } catch(e) { console.warn('loadState error', e); }
 }
+
 function initData() {
-  loadState(); // async, page renders with whatever STATE has while loading
+  loadState();
 }
 
 function localDateStr(d) {
@@ -2628,14 +2492,39 @@ function renderSettings() {
         <div style="text-align:center;margin-top:16px;"><button class="btn-secondary-sm" onclick="openTutorial()"><i class="bi bi-question-circle"></i> Ver tutorial completo</button></div>
       </div>
       <div class="dash-card" id="sync-config-card">
-        <div class="card-label mb-1"><i class="bi bi-github me-1"></i> Sincronización GitHub</div>
-        <p style="font-size:12px;color:#5F5E5A;margin-bottom:12px;">Los datos se guardan como JSON encriptado (AES-256) directamente en tu repositorio GitHub. Funciona en todos los dispositivos.</p>
-        <div id="gh-sync-info" style="margin-bottom:12px;font-size:12px;"></div>
-        <div class="d-flex gap-2 flex-wrap">
-          <button class="btn-primary-sm" onclick="AUTH.showSetup()"><i class="bi bi-gear me-1"></i>Cambiar repositorio</button>
-          <button class="btn-secondary-sm" onclick="forceSyncNow()"><i class="bi bi-cloud-arrow-up me-1"></i>Forzar sincronía</button>
+        <div class="card-label mb-1"><i class="bi bi-cloud-arrow-up me-1"></i> Sincronización entre dispositivos</div>
+        <p style="font-size:12px;color:#5F5E5A;margin-bottom:12px;">Usa un <strong>GitHub Gist</strong> (gratis) como base de datos de usuarios compartida. Una vez configurado, los cambios de contraseña y usuarios nuevos se reflejan en todos los dispositivos al instante.</p>
+
+        <!-- Step by step guide -->
+        <div style="background:#F5F3EE;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;line-height:1.7;">
+          <strong style="font-size:12px;display:block;margin-bottom:6px;color:#2C2C2A;">📋 Pasos para configurar (5 minutos, gratis):</strong>
+          <ol style="margin:0;padding-left:18px;color:#5F5E5A;">
+            <li>Ve a <a href="https://github.com" target="_blank" style="color:var(--blue);">github.com</a> e inicia sesión (o crea cuenta gratis)</li>
+            <li>Ve a <a href="https://gist.github.com" target="_blank" style="color:var(--blue);">gist.github.com</a> → crea un nuevo Gist</li>
+            <li>En <em>"Gist description"</em> escribe: <code>KPI Tracker Users</code></li>
+            <li>En <em>"Filename"</em> escribe exactamente: <code>kpi_users.json</code></li>
+            <li>En el contenido pega: <code>{"users":[]}</code></li>
+            <li>Haz clic en <strong>"Create secret gist"</strong></li>
+            <li>Copia el <strong>Gist ID</strong> — es la parte final de la URL: <br><code style="color:var(--blue);">gist.github.com/tu-usuario/<u>ESTE_ES_EL_ID</u></code></li>
+            <li>Ve a <a href="https://github.com/settings/tokens/new" target="_blank" style="color:var(--blue);">github.com/settings/tokens/new</a></li>
+            <li>En <em>"Note"</em> escribe: <code>KPI Tracker</code></li>
+            <li>En <em>"Expiration"</em> selecciona <strong>No expiration</strong></li>
+            <li>Marca solo el permiso: <strong>✅ gist</strong></li>
+            <li>Clic en <strong>"Generate token"</strong> y <strong>copia el token</strong> (solo se muestra una vez)</li>
+            <li>Pega el Gist ID y el Token abajo → <strong>Guardar y probar</strong></li>
+          </ol>
         </div>
-        <div id="gh-sync-status" style="font-size:11px;color:var(--gray);margin-top:8px;"></div>
+
+        <div class="row g-2 mb-2">
+          <div class="col-12 col-md-6"><label class="form-label-sm">Gist ID <span style="font-weight:400;color:var(--gray);">(parte final de la URL del gist)</span></label><input type="text" class="app-input" id="syncGistId" placeholder="ej: a1b2c3d4e5f6789..." value="${localStorage.getItem('kpi_gist_id')||''}"></div>
+          <div class="col-12 col-md-6"><label class="form-label-sm">GitHub Token <span style="font-weight:400;color:var(--gray);">(empieza con ghp_...)</span></label><input type="password" class="app-input" id="syncGistToken" placeholder="ghp_xxxxxxxxxxxx" value="${localStorage.getItem('kpi_gist_token')||''}"></div>
+        </div>
+        <div id="sync-status" style="font-size:12px;margin-bottom:10px;padding:8px 10px;border-radius:8px;display:none;"></div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn-primary-sm" onclick="saveSyncConfig()"><i class="bi bi-cloud-check"></i> Guardar y probar</button>
+          <button class="btn-secondary-sm" onclick="clearSyncConfig()"><i class="bi bi-x-circle"></i> Quitar sync</button>
+          ${localStorage.getItem('kpi_gist_id') ? '<span style="font-size:11px;color:var(--green);align-self:center;"><i class="bi bi-check-circle-fill"></i> Sincronización activa</span>' : ''}
+        </div>
       </div>
       <div class="dash-card" style="border-color:#F7C1C1;background:#FFFBFB;">
         <div class="card-label mb-1" style="color:var(--red);"><i class="bi bi-exclamation-triangle-fill me-1"></i> Zona de peligro</div>
@@ -2649,7 +2538,6 @@ function renderSettings() {
     </div>
   </div>`;
   updateSchedulePreview();
-  renderGhSyncInfo();
 }
 function updateSchedulePreview() {
   const start = document.getElementById('workStart')?.value;
@@ -2682,15 +2570,76 @@ function saveCountry() {
 }
 
 async function saveSyncConfig() {
-  // Legacy function — now handled by AUTH.saveSetup()
-  AUTH.showSetup();
+  const gistId    = document.getElementById('syncGistId').value.trim();
+  const gistToken = document.getElementById('syncGistToken').value.trim();
+  const statusEl  = document.getElementById('sync-status');
+
+  const showStatus = (msg, color, bg) => {
+    statusEl.style.display = '';
+    statusEl.style.color = color;
+    statusEl.style.background = bg;
+    statusEl.innerHTML = msg;
+  };
+
+  if (!gistId || !gistToken) {
+    showStatus('⚠ Completa el Gist ID y el Token.', 'var(--amber)', 'var(--amber-light)'); return;
+  }
+  showStatus('⏳ Probando conexión con GitHub...', 'var(--gray)', '#F5F3EE');
+
+  try {
+    // 1. Test: read the gist
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (r.status === 401) { showStatus('✗ Token inválido o sin permiso <strong>gist</strong>. Verifica el paso 11.', 'var(--red)', '#FFF0F0'); return; }
+    if (r.status === 404) { showStatus('✗ Gist ID no encontrado. Verifica el paso 7.', 'var(--red)', '#FFF0F0'); return; }
+    if (!r.ok) { showStatus(`✗ Error HTTP ${r.status}. Intenta de nuevo.`, 'var(--red)', '#FFF0F0'); return; }
+
+    const data = await r.json();
+    if (!data?.files?.['kpi_users.json']) {
+      showStatus('✗ El Gist no tiene el archivo <code>kpi_users.json</code>. Verifica el paso 4.', 'var(--red)', '#FFF0F0'); return;
+    }
+
+    // 2. Save credentials
+    localStorage.setItem('kpi_gist_id',    gistId);
+    localStorage.setItem('kpi_gist_token', gistToken);
+
+    // 3. Check if cloud already has users; if not, push local users
+    const cloudContent = data.files['kpi_users.json']?.content;
+    let cloudUsers = null;
+    try { cloudUsers = JSON.parse(cloudContent)?.users; } catch {}
+
+    if (!cloudUsers || cloudUsers.length === 0) {
+      // Push local users to cloud
+      const localUsers = AUTH._loadUsers() || [];
+      await fetch(`https://api.github.com/gists/${gistId}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `token ${gistToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+        body: JSON.stringify({ files: { 'kpi_users.json': { content: JSON.stringify({ users: localUsers }) } } })
+      });
+      showStatus(`✓ Conexión exitosa. <strong>${localUsers.length} usuario(s)</strong> subidos a la nube. ¡Listo!`, 'var(--green)', '#F0FBF0');
+    } else {
+      // Pull cloud users to local
+      localStorage.setItem('kpi_users_v1', ''); // clear
+      // Store raw (will be encrypted on next save)
+      showStatus(`✓ Conexión exitosa. <strong>${cloudUsers.length} usuario(s)</strong> sincronizados desde la nube. ¡Listo!`, 'var(--green)', '#F0FBF0');
+    }
+    showToast('✓ Sincronización con GitHub Gist activa');
+  } catch(e) {
+    showStatus('✗ Error de red. Verifica tu conexión a internet.', 'var(--red)', '#FFF0F0');
+  }
 }
+
 function clearSyncConfig() {
-  if (!confirm('¿Desconectar GitHub de este dispositivo? Los datos en GitHub no se borran.')) return;
-  localStorage.removeItem('kpi_gh_owner');
-  localStorage.removeItem('kpi_gh_repo');
-  localStorage.removeItem('kpi_gh_token');
-  showToast('Configuración GitHub eliminada de este dispositivo');
+  if (!confirm('¿Quitar la sincronización? Los usuarios locales no se borran.')) return;
+  localStorage.removeItem('kpi_gist_id');
+  localStorage.removeItem('kpi_gist_token');
+  document.getElementById('syncGistId').value  = '';
+  document.getElementById('syncGistToken').value = '';
+  const s = document.getElementById('sync-status');
+  s.style.display = ''; s.style.background = '#F5F3EE';
+  s.style.color = 'var(--gray)'; s.textContent = 'Sincronización desactivada.';
+  showToast('Sincronización desactivada');
 }
 function resetDefaults() {
   if (!confirm('¿Restablecer a 07:45 - 17:30 con 60 min almuerzo?')) return;
@@ -3130,43 +3079,6 @@ function scIgnoreWord(event, inputId, word) {
 }
 
 
-
-// Toggle password field visibility
-function togglePwField(inputId, btn) {
-  const inp = document.getElementById(inputId);
-  if (!inp) return;
-  inp.type = inp.type === 'text' ? 'password' : 'text';
-  const icon = btn.querySelector('i');
-  if (icon) icon.className = inp.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
-}
-
-// Force GitHub sync
-async function forceSyncNow() {
-  const statusEl = document.getElementById('gh-sync-status');
-  if (statusEl) { statusEl.style.color='var(--gray)'; statusEl.textContent='⏳ Sincronizando con GitHub…'; }
-  try {
-    await saveState();
-    if (statusEl) { statusEl.style.color='var(--green)'; statusEl.textContent=`✓ Sincronizado ${new Date().toLocaleTimeString('es-CO')}`; }
-    showToast('✓ Datos guardados en GitHub');
-  } catch(e) {
-    if (statusEl) { statusEl.style.color='var(--red)'; statusEl.textContent='✗ Error: '+e.message; }
-    showToast('Error al sincronizar: '+e.message, 'danger');
-  }
-}
-
-// Show GitHub config info in settings
-function renderGhSyncInfo() {
-  const el = document.getElementById('gh-sync-info');
-  if (!el) return;
-  const owner = localStorage.getItem('kpi_gh_owner')||'—';
-  const repo  = localStorage.getItem('kpi_gh_repo')||'—';
-  el.innerHTML = `<div style="background:var(--green-light);border:0.5px solid #C0DD97;border-radius:7px;padding:8px 12px;">
-    <i class="bi bi-check-circle-fill" style="color:var(--green);margin-right:5px;"></i>
-    Conectado a: <code style="font-size:11px;">${owner}/${repo}</code>
-    &nbsp;·&nbsp; Archivos: <code style="font-size:10px;">kpi-data/users.json</code>, <code style="font-size:10px;">kpi-data/tasks.json</code>
-  </div>`;
-}
-
 function initApp() {
   initData();
   updateDateDisplay();
@@ -3185,8 +3097,6 @@ function initApp() {
     });
   });
 }
-
-window.addEventListener('beforeunload', () => { saveState(); });
 
 document.addEventListener('DOMContentLoaded', () => {
   AUTH.boot();

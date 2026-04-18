@@ -1061,7 +1061,7 @@ const AUTH = (() => {
       if (user) {
         _currentUser = { id: user.id, username: user.username, fullname: user.fullname, role: user.role };
         _applySession();
-        initApp();
+        await initApp();
         return;
       }
     }
@@ -1138,7 +1138,7 @@ const AUTH = (() => {
     _currentUser = { id: user.id, username: user.username, fullname: user.fullname, role: user.role };
     saveSession(_currentUser);
     _applySession();
-    initApp(); // initApp llama loadState que jala del Gist
+    await initApp(); // await para que loadState jale el Gist ANTES de renderizar
   }
 
   function logout() {
@@ -1434,19 +1434,31 @@ async function loadState() {
   } catch(e) { console.warn('loadState local error', e); }
 
   // 2. Pull from Gist if configured
-  const gistId = localStorage.getItem('kpi_gist_id');
+  const gistId    = localStorage.getItem('kpi_gist_id');
   const gistToken = localStorage.getItem('kpi_gist_token');
   if (!gistId || !gistToken) return;
 
-  showToast('⏳ Sincronizando datos desde la nube...');
+  // Show loading indicator
+  let loadingEl = document.getElementById('gist-loading-overlay');
+  if (!loadingEl) {
+    loadingEl = document.createElement('div');
+    loadingEl.id = 'gist-loading-overlay';
+    loadingEl.style.cssText = 'position:fixed;inset:0;background:rgba(245,243,238,.85);z-index:99998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;font-family:Plus Jakarta Sans,sans-serif;';
+    loadingEl.innerHTML = '<div style="width:36px;height:36px;border:3px solid #E0DDD6;border-top-color:#185FA5;border-radius:50%;animation:spin 0.8s linear infinite"></div><p style="font-size:13px;color:#5F5E5A;margin:0;">Sincronizando datos...</p>';
+    document.body.appendChild(loadingEl);
+  }
+  loadingEl.style.display = 'flex';
+
   const cloudData = await _pullDataFromGist();
+
+  loadingEl.style.display = 'none';
+
   if (cloudData) {
     _applyStateSnapshot(cloudData);
     try { localStorage.setItem(key, JSON.stringify(cloudData)); } catch {}
-    showToast('✓ Datos sincronizados');
-    if (typeof renderCurrentPage === 'function') renderCurrentPage();
+    showToast(`✓ ${cloudData.tasks?.length || 0} tareas sincronizadas`);
   } else {
-    showToast('⚠ Sin datos en la nube aún — usando datos locales');
+    showToast('⚠ Sin datos en la nube — usando datos locales');
   }
 }
 

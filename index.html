@@ -1344,14 +1344,15 @@ async function _pushDataToGist(data) {
   const gistId    = localStorage.getItem('kpi_gist_id');
   const gistToken = localStorage.getItem('kpi_gist_token');
   const fileName  = _dataFileName();
-  if (!gistId || !gistToken || !fileName) return;
+  if (!gistId || !gistToken || !fileName) return false;
   try {
-    await fetch(`https://api.github.com/gists/${gistId}`, {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
       method: 'PATCH',
       headers: { 'Authorization': `token ${gistToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
       body: JSON.stringify({ files: { [fileName]: { content: JSON.stringify(data) } } })
     });
-  } catch { /* silently ignore */ }
+    return r.ok;
+  } catch { return false; }
 }
 
 async function _pullDataFromGist() {
@@ -1360,12 +1361,24 @@ async function _pullDataFromGist() {
   const fileName  = _dataFileName();
   if (!gistId || !gistToken || !fileName) return null;
   try {
-    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json' }
+    // Fetch gist metadata with cache-busting
+    const r = await fetch(`https://api.github.com/gists/${gistId}?t=${Date.now()}`, {
+      headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json', 'Cache-Control': 'no-cache' }
     });
     if (!r.ok) return null;
     const gist = await r.json();
-    const content = gist?.files?.[fileName]?.content;
+    const file = gist?.files?.[fileName];
+    if (!file) return null;
+
+    // If content is truncated, fetch via raw_url
+    let content = file.content;
+    if (file.truncated || !content) {
+      const rawR = await fetch(file.raw_url + `?t=${Date.now()}`, {
+        headers: { 'Authorization': `token ${gistToken}`, 'Cache-Control': 'no-cache' }
+      });
+      if (!rawR.ok) return null;
+      content = await rawR.text();
+    }
     return content ? JSON.parse(content) : null;
   } catch { return null; }
 }
@@ -1440,18 +1453,30 @@ async function loadState() {
 async function syncNow() {
   const btn = document.getElementById('btn-sync-now');
   if (btn) { btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin 1s linear infinite"></i>'; btn.disabled = true; }
-  // Force push current state immediately
-  clearTimeout(_gistSaveTimer);
-  await _pushDataToGist(_buildStateSnapshot());
-  // Then pull to get any remote changes
+
+  // 1. Push local state to Gist
+  showToast('⬆ Subiendo datos...');
+  const pushed = await _pushDataToGist(_buildStateSnapshot());
+  if (!pushed) {
+    showToast('✗ Error al subir — verifica conexión y token del Gist');
+    if (btn) { btn.innerHTML = '<i class="bi bi-cloud-slash"></i>'; btn.disabled = false; setTimeout(() => { btn.innerHTML = '<i class="bi bi-cloud-arrow-down"></i>'; }, 3000); }
+    return;
+  }
+
+  // 2. Pull latest from Gist (with small delay so GitHub processes the write)
+  await new Promise(res => setTimeout(res, 1500));
+  showToast('⬇ Descargando datos...');
   const cloudData = await _pullDataFromGist();
   if (cloudData) {
     _applyStateSnapshot(cloudData);
     try { localStorage.setItem(_userDataKey(), JSON.stringify(cloudData)); } catch {}
     renderCurrentPage();
+    showToast(`✓ Sincronizado — ${cloudData.tasks?.length || 0} tareas`);
+  } else {
+    showToast('⚠ No se pudo descargar del Gist');
   }
+
   if (btn) { btn.innerHTML = '<i class="bi bi-cloud-check"></i>'; btn.disabled = false; setTimeout(() => { btn.innerHTML = '<i class="bi bi-cloud-arrow-down"></i>'; }, 2000); }
-  showToast('✓ Sincronizado con la nube');
 }
 
 function initData() { return loadState(); }

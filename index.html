@@ -390,6 +390,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:#F5F3E
 .sc-ignore{display:block;padding:4px 8px;border-radius:5px;cursor:pointer;font-size:11px;color:#888;margin-top:4px;border-top:0.5px solid #333;padding-top:7px;transition:background .12s;}
 .sc-ignore:hover{background:rgba(255,255,255,.08);color:#aaa;}
 @media(max-width:600px){.sc-tooltip{font-size:11px;}}
+@keyframes spin { to { transform: rotate(360deg); } }
 /* ── RESPONSIVE SYSTEM ──────────────────────────────────────── */
 
 /* Mobile top navbar */
@@ -616,7 +617,10 @@ body{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;background:#F5F3E
           <div class="user-name" id="sidebar-username">—</div>
           <div class="user-role" id="sidebar-userrole">—</div>
         </div>
-        <button onclick="AUTH.logout()" title="Cerrar sesión" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:14px;padding:2px 4px;" class="btn-link-sm"><i class="bi bi-box-arrow-right"></i></button>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+          <button onclick="syncNow()" title="Sincronizar ahora" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:14px;padding:2px 4px;" id="btn-sync-now"><i class="bi bi-cloud-arrow-down"></i></button>
+          <button onclick="AUTH.logout()" title="Cerrar sesión" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:14px;padding:2px 4px;"><i class="bi bi-box-arrow-right"></i></button>
+        </div>
       </div>
     </div>
   </aside>
@@ -1301,41 +1305,127 @@ function _userDataKey() {
   return u ? `kpi_data_u${u.id}_v1` : null;
 }
 
+// ── Gist data sync helpers (llamados desde AUTH context) ─────
+function _dataFileName() {
+  const u = AUTH.getCurrentUser();
+  return u ? `kpi_data_u${u.id}.json` : null;
+}
+
+async function _pushDataToGist(data) {
+  const gistId    = localStorage.getItem('kpi_gist_id');
+  const gistToken = localStorage.getItem('kpi_gist_token');
+  const fileName  = _dataFileName();
+  if (!gistId || !gistToken || !fileName) return;
+  try {
+    await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `token ${gistToken}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ files: { [fileName]: { content: JSON.stringify(data) } } })
+    });
+  } catch { /* silently ignore */ }
+}
+
+async function _pullDataFromGist() {
+  const gistId    = localStorage.getItem('kpi_gist_id');
+  const gistToken = localStorage.getItem('kpi_gist_token');
+  const fileName  = _dataFileName();
+  if (!gistId || !gistToken || !fileName) return null;
+  try {
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${gistToken}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!r.ok) return null;
+    const gist = await r.json();
+    const content = gist?.files?.[fileName]?.content;
+    return content ? JSON.parse(content) : null;
+  } catch { return null; }
+}
+
+// Debounce: sube al Gist máximo 1 vez cada 10 segundos
+let _gistSaveTimer = null;
+function _scheduleGistPush(data) {
+  clearTimeout(_gistSaveTimer);
+  _gistSaveTimer = setTimeout(() => _pushDataToGist(data), 10000);
+}
+
+function _buildStateSnapshot() {
+  return {
+    tasks:          STATE.tasks,
+    templates:      STATE.templates,
+    holidays:       STATE.holidays,
+    settings:       STATE.settings,
+    nextTaskId:     STATE.nextTaskId,
+    nextTemplateId: STATE.nextTemplateId,
+    nextHolidayId:  STATE.nextHolidayId,
+  };
+}
+
+function _applyStateSnapshot(data) {
+  if (!data) return;
+  if (data.tasks)          STATE.tasks          = data.tasks;
+  if (data.templates)      STATE.templates      = data.templates;
+  if (data.holidays)       STATE.holidays       = data.holidays;
+  if (data.settings)       STATE.settings       = Object.assign(STATE.settings, data.settings);
+  if (data.nextTaskId)     STATE.nextTaskId     = data.nextTaskId;
+  if (data.nextTemplateId) STATE.nextTemplateId = data.nextTemplateId;
+  if (data.nextHolidayId)  STATE.nextHolidayId  = data.nextHolidayId;
+}
+
 function saveState() {
   const key = _userDataKey();
   if (!key) return;
-  const data = {
-    tasks:           STATE.tasks,
-    templates:       STATE.templates,
-    holidays:        STATE.holidays,
-    settings:        STATE.settings,
-    nextTaskId:      STATE.nextTaskId,
-    nextTemplateId:  STATE.nextTemplateId,
-    nextHolidayId:   STATE.nextHolidayId,
-  };
+  const data = _buildStateSnapshot();
+  // 1. Save locally always (instant)
   try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) { console.warn('saveState error', e); }
+  // 2. Push to Gist in background (debounced 10s)
+  _scheduleGistPush(data);
 }
 
-function loadState() {
+async function loadState() {
   const key = _userDataKey();
   if (!key) return;
+
+  // 1. Load from localStorage first (instant, so UI loads fast)
   try {
     const raw = localStorage.getItem(key);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    if (data.tasks)          STATE.tasks          = data.tasks;
-    if (data.templates)      STATE.templates      = data.templates;
-    if (data.holidays)       STATE.holidays       = data.holidays;
-    if (data.settings)       STATE.settings       = Object.assign(STATE.settings, data.settings);
-    if (data.nextTaskId)     STATE.nextTaskId     = data.nextTaskId;
-    if (data.nextTemplateId) STATE.nextTemplateId = data.nextTemplateId;
-    if (data.nextHolidayId)  STATE.nextHolidayId  = data.nextHolidayId;
-  } catch(e) { console.warn('loadState error', e); }
+    if (raw) _applyStateSnapshot(JSON.parse(raw));
+  } catch(e) { console.warn('loadState local error', e); }
+
+  // 2. Pull from Gist (may have newer data from another device)
+  const cloudData = await _pullDataFromGist();
+  if (cloudData) {
+    // Use cloud if it has more tasks or more recent data
+    const localTasks = STATE.tasks.length;
+    const cloudTasks = (cloudData.tasks || []).length;
+    // Merge strategy: take whichever has more total tasks; in ties prefer cloud
+    if (cloudTasks >= localTasks) {
+      _applyStateSnapshot(cloudData);
+      // Update localStorage with cloud data
+      try { localStorage.setItem(key, JSON.stringify(cloudData)); } catch {}
+      // Re-render if app already visible
+      if (typeof renderCurrentPage === 'function') renderCurrentPage();
+    }
+  }
 }
 
-function initData() {
-  loadState();
+async function syncNow() {
+  const btn = document.getElementById('btn-sync-now');
+  if (btn) { btn.innerHTML = '<i class="bi bi-arrow-repeat" style="animation:spin 1s linear infinite"></i>'; btn.disabled = true; }
+  // Force push current state immediately
+  clearTimeout(_gistSaveTimer);
+  await _pushDataToGist(_buildStateSnapshot());
+  // Then pull to get any remote changes
+  const cloudData = await _pullDataFromGist();
+  if (cloudData) {
+    _applyStateSnapshot(cloudData);
+    try { localStorage.setItem(_userDataKey(), JSON.stringify(cloudData)); } catch {}
+    renderCurrentPage();
+  }
+  if (btn) { btn.innerHTML = '<i class="bi bi-cloud-check"></i>'; btn.disabled = false; setTimeout(() => { btn.innerHTML = '<i class="bi bi-cloud-arrow-down"></i>'; }, 2000); }
+  showToast('✓ Sincronizado con la nube');
 }
+
+function initData() { return loadState(); }
 
 function localDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -3130,8 +3220,8 @@ function scIgnoreWord(event, inputId, word) {
 }
 
 
-function initApp() {
-  initData();
+async function initApp() {
+  await initData();
   updateDateDisplay();
   setInterval(updateDateDisplay, 60000);
   document.getElementById('sec-principal').classList.add('open');
